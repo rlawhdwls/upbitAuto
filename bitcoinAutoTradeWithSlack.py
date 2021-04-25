@@ -5,10 +5,10 @@ import requests
 
 access = "WCuPxUwgVLcNzzvAG7o2vUrOkPqyH46DSUW8xmD8"          # 본인 값으로 변경
 secret = "4OiySwvAAx9ciqG6Mwfjkbwn6glIUMjPbmTCpzDB"          # 본인 값으로 변경
-coin_name = "KRW-RFR" #코인 이름
-coin_name2="RFR" #코인이름
+coin_name = "KRW-BTT" #코인 이름
+coin_name2="BTT" #코인이름
 key_k=0.3 #k값
-myToken = "xoxb-your-token"
+myToken = "xoxb-1995815147381-1999111314947-cU6WqFHWZQHe9iuGEG3dGXfF"
 
 def post_message(token, channel, text):
     """슬랙 메시지 전송"""
