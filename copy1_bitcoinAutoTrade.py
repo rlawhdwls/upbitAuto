@@ -1,12 +1,23 @@
 import time
 import pyupbit
 import datetime
+import requests
 
 access = "WCuPxUwgVLcNzzvAG7o2vUrOkPqyH46DSUW8xmD8"  # 본인 값으로 변경
 secret = "4OiySwvAAx9ciqG6Mwfjkbwn6glIUMjPbmTCpzDB"  # 본인 값으로 변경
-coin_name = "KRW-BTT"  # 코인 이름
-coin_name2 = "BTT"  # 코인이름
-key_k = 0.3  # k값
+coin_name = "KRW-DOGE"  # 코인 이름
+coin_name2 = "DOGE"  # 코인이름
+key_k = 0.2  # k값
+myToken = "xoxb-1995815147381-1999111314947-cU6WqFHWZQHe9iuGEG3dGXfF"
+
+
+def post_message(token, channel, text):
+    """슬랙 메시지 전송"""
+    response = requests.post(
+        "https://slack.com/api/chat.postMessage",
+        headers={"Authorization": "Bearer " + token},
+        data={"channel": channel, "text": text},
+    )
 
 
 def get_target_price(ticker, k):
@@ -56,6 +67,8 @@ def get_current_price(ticker):
 # 로그인
 upbit = pyupbit.Upbit(access, secret)
 print("autotrade start")
+post_message(myToken, "#crypto", "autotrade start")
+
 count = 0
 # 자동매매 시작
 while True:
@@ -75,27 +88,33 @@ while True:
                 krw = get_balance("KRW")
                 if krw > 5000:
                     upbit.buy_market_order(coin_name, krw * 0.9995)
+                    post_message(myToken, "#crypto", "BTC buy : " + str(buy_result))
                     count = 1
             if count == 1:
                 btc = get_balance(coin_name2)
-                if current_price >= target_price * 1.03:
-                    upbit.sell_market_order(coin_name, btc * 0.25)
+                if current_price >= target_price * 1.05:
+                    upbit.sell_market_order(coin_name, btc * 0.5)
+                    post_message(
+                        myToken, "#crypto", coin_name2 + " buy : " + str(sell_result)
+                    )
                     count = 2
             if count == 2:
                 btc = get_balance(coin_name2)
-                if current_price >= target_price * 1.05:
-                    upbit.sell_market_order(coin_name, btc * 0.5)
-                    count = 3
-            if count == 3:
-                btc = get_balance(coin_name2)
                 if current_price >= target_price * 1.07:
-                    upbit.sell_market_order(coin_name, btc * 0.25)
-                    count = 4
+                    upbit.sell_market_order(coin_name, btc * 0.5)
+                    post_message(
+                        myToken, "#crypto", coin_name2 + " buy : " + str(sell_result)
+                    )
+                    count = 3
 
         else:
             btc = get_balance(coin_name2)
             if btc > 0.00008:
                 upbit.sell_market_order(coin_name, btc * 0.9995)
+                post_message(
+                    myToken, "#crypto", coin_name2 + " buy : " + str(sell_result)
+                )
+
                 count = 0
         time.sleep(1)
     except Exception as e:
