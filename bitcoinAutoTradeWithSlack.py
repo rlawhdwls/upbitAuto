@@ -8,7 +8,7 @@ secret = "4OiySwvAAx9ciqG6Mwfjkbwn6glIUMjPbmTCpzDB"  # 본인 값으로 변경
 coin_name = "KRW-DOGE"  # 코인 이름
 coin_name2 = "DOGE"  # 코인이름
 key_k = 0.4  # k값
-myToken = "xoxb-1995815147381-2005095539639-oov29F1Vheqe69hZeDvxcat9"
+myToken = "xoxb-1995815147381-2005095539639-LrBQ3pjcAuFBCitQll0KkTlQ"
 
 
 def post_message(token, channel, text):
@@ -23,17 +23,22 @@ def post_message(token, channel, text):
 post_message(myToken, "#upbit", "코인 자동화 프로그램 시작!")
 
 
+# def get_target_price(ticker, k):
+#     # """변동성 돌파 전략으로 매수 목표가 조회"""
+#     df = pyupbit.get_ohlcv(ticker, interval="day", count=2)
+#     # target_price = df.iloc[0]["close"] + (df.iloc[0]["high"] - df.iloc[0]["low"]) * k
+
+#     # df["target"] = df["open"] + (df["open"] - (df["low"] + df["high"]) / 2) * key_k
+
+#     # 시가에 (저가+고가)/2 한것을 시가에빼서 k값을 곱한값을 더한다
+#     target_price = ((df.iloc[0]["low"] + df.iloc[0]["high"]) / 2) + (
+#         df.iloc[0]["close"] - (df.iloc[0]["low"] + df.iloc[0]["high"]) / 2
+#     ) * k
+#     return target_price
 def get_target_price(ticker, k):
-    # """변동성 돌파 전략으로 매수 목표가 조회"""
+    """변동성 돌파 전략으로 매수 목표가 조회"""
     df = pyupbit.get_ohlcv(ticker, interval="day", count=2)
-    # target_price = df.iloc[0]["close"] + (df.iloc[0]["high"] - df.iloc[0]["low"]) * k
-
-    # df["target"] = df["open"] + (df["open"] - (df["low"] + df["high"]) / 2) * key_k
-
-    # 시가에 (저가+고가)/2 한것을 시가에빼서 k값을 곱한값을 더한다
-    target_price = ((df.iloc[0]["low"] + df.iloc[0]["high"]) / 2) + (
-        df.iloc[0]["close"] - (df.iloc[0]["low"] + df.iloc[0]["high"]) / 2
-    ) * k
+    target_price = df.iloc[0]["close"] + (df.iloc[0]["high"] - df.iloc[0]["low"]) * k
     return target_price
 
 
