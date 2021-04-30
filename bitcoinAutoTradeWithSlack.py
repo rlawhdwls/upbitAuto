@@ -7,7 +7,7 @@ access = "WCuPxUwgVLcNzzvAG7o2vUrOkPqyH46DSUW8xmD8"  # 본인 값으로 변경
 secret = "4OiySwvAAx9ciqG6Mwfjkbwn6glIUMjPbmTCpzDB"  # 본인 값으로 변경
 coin_name = "KRW-DOGE"  # 코인 이름
 coin_name2 = "DOGE"  # 코인이름
-key_k = 0.2  # k값
+key_k = 0.4  # k값
 myToken = "xoxb-1995815147381-2005095539639-oov29F1Vheqe69hZeDvxcat9"
 
 
@@ -73,7 +73,7 @@ print("autotrade start")
 count = 0
 
 # 시작 메세지 슬랙 전송
-post_message(myToken, "#upbit", `${coin_name} 자동매매 시작!`)
+post_message(myToken, "#upbit", "자동매매시작")
 
 
 # 자동매매 시작
@@ -94,23 +94,24 @@ while True:
                 krw = get_balance("KRW")
                 if krw > 5000:
                     buy_result = upbit.buy_market_order(coin_name, krw * 0.9995)
+                    buy_price = current_price
                     post_message(myToken, "#upbit", "BTC buy : " + str(buy_result))
                     count = 1
             if count == 1:
                 btc = get_balance(coin_name2)
-                if current_price >= target_price * 1.03:
+                if current_price >= buy_price * 1.03:
                     sell_result = upbit.sell_market_order(coin_name, btc * 0.25)
                     post_message(myToken, "#upbit", "BTC buy : " + str(sell_result))
                     count = 2
             if count == 2:
                 btc = get_balance(coin_name2)
-                if current_price >= target_price * 1.05:
+                if current_price >= buy_price * 1.05:
                     sell_result = upbit.sell_market_order(coin_name, btc * 0.5)
                     post_message(myToken, "#upbit", "BTC buy : " + str(sell_result))
                     count = 3
             if count == 3:
                 btc = get_balance(coin_name2)
-                if current_price >= target_price * 1.07:
+                if current_price >= buy_price * 1.07:
                     sell_result = upbit.sell_market_order(coin_name, btc * 0.25)
                     post_message(myToken, "#upbit", "BTC buy : " + str(sell_result))
                     count = 4
