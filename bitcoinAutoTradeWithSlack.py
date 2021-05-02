@@ -7,7 +7,7 @@ access = "WCuPxUwgVLcNzzvAG7o2vUrOkPqyH46DSUW8xmD8"  # 본인 값으로 변경
 secret = "4OiySwvAAx9ciqG6Mwfjkbwn6glIUMjPbmTCpzDB"  # 본인 값으로 변경
 coin_name = "KRW-DOGE"  # 코인 이름
 coin_name2 = "DOGE"  # 코인이름
-key_k = 0.4  # k값
+key_k = 0.5  # k값
 myToken = "xoxb-1995815147381-2005095539639-LrBQ3pjcAuFBCitQll0KkTlQ"
 
 
@@ -91,41 +91,49 @@ while True:
         end_time = start_time + datetime.timedelta(days=1)
 
         # 9:00 < 현재 < 8:59:50
-        if start_time < now < end_time - datetime.timedelta(seconds=10):
+        if start_time < now < end_time - datetime.timedelta(hours=2):
             target_price = get_target_price(coin_name, key_k)
             ma15 = get_ma15(coin_name)
             current_price = get_current_price(coin_name)
+            # 첫번째 구매->전량매수 ///
             if target_price < current_price and ma15 < current_price:
-                krw = get_balance("KRW")
-                if krw > 5000:
-                    buy_result = upbit.buy_market_order(coin_name, krw * 0.9995)
-                    buy_price = current_price
-                    post_message(myToken, "#upbit", "BTC buy : " + str(buy_result))
-                    count = 1
+                # 첫번째 조건을 만족하고 count==0 => 마감날 전량 매도한 뒤 전량 현금 보유일때,
+                if count == 0:
+                    krw = get_balance("KRW")
+                    if krw > 5000:
+                        buy_result = upbit.buy_market_order(coin_name, krw * 0.9995)
+
+                        buy_price = current_price  # 현재가격 즉, 매수한 가격
+                        post_message(
+                            myToken, "#upbit", "BTC buy : " + str(buy_result)
+                        )  # Slack 봇
+                        print(buy_result)
+                        count = 1  # 처음 전량 매수인 경우
+
+            # 전량매수 후, 매수 금액에서 5%상승시 1/2 매도
             if count == 1:
                 btc = get_balance(coin_name2)
-                if current_price >= buy_price * 1.03:
-                    sell_result = upbit.sell_market_order(coin_name, btc * 0.25)
-                    post_message(myToken, "#upbit", "BTC buy : " + str(sell_result))
-                    count = 2
-            if count == 2:
-                btc = get_balance(coin_name2)
-                if current_price >= buy_price * 1.05:
+                if buy_price * 1.06 >= current_price > buy_price * 1.04:
                     sell_result = upbit.sell_market_order(coin_name, btc * 0.5)
                     post_message(myToken, "#upbit", "BTC buy : " + str(sell_result))
-                    count = 3
-            if count == 3:
+                    print(sell_result)
+                    count = 2
+
+            # 매수 금액에서 5%의 1/2를 매도한 후 10%상승시 나머지 금액의 1/2매도
+            if count == 2:
                 btc = get_balance(coin_name2)
-                if current_price >= buy_price * 1.07:
-                    sell_result = upbit.sell_market_order(coin_name, btc * 0.25)
+                if buy_price * 1.1 >= current_price > buy_price * 1.09:
+                    sell_result = upbit.sell_market_order(coin_name, btc * 0.5)
                     post_message(myToken, "#upbit", "BTC buy : " + str(sell_result))
-                    count = 4
+                    print(sell_result)
+                    count = 3
 
         else:
             btc = get_balance(coin_name2)
             if btc > 0.00008:
                 sell_result = upbit.sell_market_order(coin_name, btc * 0.9995)
                 post_message(myToken, "#upbit", "BTC buy : " + str(sell_result))
+                print(sell_result)
                 count = 0
         time.sleep(1)
     except Exception as e:
