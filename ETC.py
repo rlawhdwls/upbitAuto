@@ -52,8 +52,6 @@ upbit = pyupbit.Upbit(access, secret)
 print("autotrade start")
 count = 0
 
-krw = int(get_balance("KRW") * 0.25)
-
 # 자동매매 시작
 while True:
 
@@ -69,6 +67,7 @@ while True:
             target_price = get_target_price(coin_name, key_k)
             ma15 = get_ma15(coin_name)
             current_price = get_current_price(coin_name)
+            krw = int(get_balance("KRW") * 0.25)
             # 첫번째 구매->전량매수 ///
             if target_price < current_price and ma15 < current_price:
                 # 첫번째 조건을 만족하고 count==0 => 마감날 전량 매도한 뒤 전량 현금 보유일때,
