@@ -1,6 +1,7 @@
 import time
 import pyupbit
 import datetime
+import numpy as np
 
 access = "WCuPxUwgVLcNzzvAG7o2vUrOkPqyH46DSUW8xmD8"  # 본인 값으로 변경
 secret = "4OiySwvAAx9ciqG6Mwfjkbwn6glIUMjPbmTCpzDB"  # 본인 값으로 변경
@@ -8,6 +9,9 @@ coin_name = "KRW-ETC"  # 코인 이름
 coin_name2 = "ETC"  # 코인이름
 
 key_k = 0.1  # k값
+
+best_k = 0.0  # 제일좋은 키값
+best_ror = 1  # 제일좋은 수익률
 
 
 def get_target_price(ticker, k):
@@ -43,6 +47,19 @@ def get_balance(coin):
                 return 0
 
 
+# best k 값
+def get_ror(k):
+    df = pyupbit.get_ohlcv(coin_name, count=30)  # 210508 30일간 ohlcv
+    df["range"] = (df["high"] - df["low"]) * k
+    df["target"] = df["open"] + df["range"].shift(1)
+
+    fee = 0.0005
+    df["ror"] = np.where(df["high"] > df["target"], df["close"] / df["target"] - fee, 1)
+    # 누적수익률
+    ror = df["ror"].cumprod()[-2]
+    return ror
+
+
 def get_current_price(ticker):
     """현재가 조회"""
     return pyupbit.get_orderbook(tickers=ticker)[0]["orderbook_units"][0]["ask_price"]
@@ -54,11 +71,24 @@ print("autotrade start")
 count = 0
 program_count = 0  # 초기 자본금 파악을 위한 count210508
 
-print("타겟 값 : {0}".format(get_target_price(coin_name, key_k)))
-print("MA15 값 : {0}".format(get_ma15(coin_name)))
 
 # 자동매매 시작
 while True:
+    ####################################################################
+    if best_k == 0:
+        for k in np.arange(0.1, 1.0, 0.1):
+            ror = get_ror(k)
+            # print("%.1f %f" % (k, ror))
+            if ror > best_ror:
+                best_k = k
+                best_ror = ror
+
+        key_k = best_k  # best_k로 key_k 변경
+        print("best key : {0}".format(key_k))
+
+        print("타겟 값 : {0}".format(get_target_price(coin_name, key_k)))
+        print("MA15 값 : {0}".format(get_ma15(coin_name)))
+    #####################################################################
 
     # count가 0이면 초기화 1이면 구매 2이면 1/2매도 3이면 전량 매도
 
@@ -107,7 +137,7 @@ while True:
                 sell_result = upbit.sell_market_order(coin_name, btc * 0.9995)
                 print(sell_result)
                 count = 0
-
+                best_k = 0
         # 반복문이 끝날때 1씩 더해준다210508
         program_count = program_count + 1
         time.sleep(1)
