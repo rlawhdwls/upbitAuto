@@ -27,7 +27,8 @@ def get_start_time(ticker):
 def get_ma15(ticker):
     """15일 이동 평균선 조회"""
     df = pyupbit.get_ohlcv(ticker, interval="day", count=15)
-    ma15 = df["close"].rolling(15).mean().iloc[-1]
+    # 210508 rolling 15-> 3
+    ma15 = df["close"].rolling(3).mean().iloc[-1]
     return ma15
 
 
@@ -51,6 +52,10 @@ def get_current_price(ticker):
 upbit = pyupbit.Upbit(access, secret)
 print("autotrade start")
 count = 0
+program_count = 0  # 초기 자본금 파악을 위한 count210508
+
+print("타겟 값 : {0}".format(get_target_price(coin_name, key_k)))
+print("MA15 값 : {0}".format(get_ma15(coin_name)))
 
 # 자동매매 시작
 while True:
@@ -67,25 +72,25 @@ while True:
             target_price = get_target_price(coin_name, key_k)
             ma15 = get_ma15(coin_name)
             current_price = get_current_price(coin_name)
-            krw = int(get_balance("KRW") * 0.25)
+
+            # 처음 실행인 경우210508
+            if program_count == 0:
+                krw = int(get_balance("KRW") * 0.25)
+
             # 첫번째 구매->전량매수 ///
             if target_price < current_price and ma15 < current_price:
                 # 첫번째 조건을 만족하고 count==0 => 마감날 전량 매도한 뒤 전량 현금 보유일때,
                 if count == 0:
-                    # krw = get_balance("KRW")
-                    if krw > 5000 and (target_price * 1.05 >= current_price):
+                    if krw > 5000 and (target_price * 1.01 >= current_price):
                         buy_result = upbit.buy_market_order(coin_name, krw * 0.9995)
-
                         buy_price = current_price  # 현재가격 즉, 매수한 가격
-                        print(buy_result)
                         count = 1  # 처음 전량 매수인 경우
 
             # 전량매수 후, 매수 금액에서 5%상승시 1/2 매도
             if count == 1:
                 btc = get_balance(coin_name2)
-                if buy_price * 1.06 >= current_price > buy_price * 1.04:
-                    sell_result = upbit.sell_market_order(coin_name, btc * 0.25)
-                    print(sell_result)
+                if buy_price * 1.06 >= current_price > buy_price * 1.049:
+                    sell_result = upbit.sell_market_order(coin_name, btc * 0.5)
                     count = 2
 
             # 매수 금액에서 5%의 1/2를 매도한 후 10%상승시 나머지 금액의 1/2매도
@@ -102,6 +107,9 @@ while True:
                 sell_result = upbit.sell_market_order(coin_name, btc * 0.9995)
                 print(sell_result)
                 count = 0
+
+        # 반복문이 끝날때 1씩 더해준다210508
+        program_count = program_count + 1
         time.sleep(1)
     except Exception as e:
         print(e)
