@@ -5,8 +5,8 @@ import numpy as np
 
 access = "WCuPxUwgVLcNzzvAG7o2vUrOkPqyH46DSUW8xmD8"  # 본인 값으로 변경
 secret = "4OiySwvAAx9ciqG6Mwfjkbwn6glIUMjPbmTCpzDB"  # 본인 값으로 변경
-coin_name = "KRW-BTT"  # 코인 이름
-coin_name2 = "BTT"  # 코인이름
+coin_name = "KRW-BTC"  # 코인 이름
+coin_name2 = "BTC"  # 코인이름
 
 key_k = 0.1  # k값
 
