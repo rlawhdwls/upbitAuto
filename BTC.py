@@ -3,8 +3,8 @@ import pyupbit
 import datetime
 import numpy as np
 
-access = "WCuPxUwgVLcNzzvAG7o2vUrOkPqyH46DSUW8xmD8"  # 본인 값으로 변경
-secret = "4OiySwvAAx9ciqG6Mwfjkbwn6glIUMjPbmTCpzDB"  # 본인 값으로 변경
+access = "IcWM4Sjo3x1IusHc1uGSfug6DFlLDcoRpjgNotoJ"  # 본인 값으로 변경
+secret = "JSCwRKTLFihdG3G4QEazcO1belxrV7qC0rRwyEPT"  # 본인 값으로 변경
 coin_name = "KRW-BTC"  # 코인 이름
 coin_name2 = "BTC"  # 코인이름
 
